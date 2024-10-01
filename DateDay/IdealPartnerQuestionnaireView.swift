@@ -6,53 +6,63 @@
 //
 
 import SwiftUI
+import Firebase
 
 struct IdealPartnerQuestionnaireView: View {
+    @Binding var user: User?
+
     @State private var currentPage = 0
-    @State private var answers: [UUID: String] = [:]
-    @State private var showSelfDescriptionPopup = false
+    @State private var questions: [Question] = []
+    @State private var answers: [String: String] = [:]
 
     var body: some View {
         VStack {
-            Text("Partenaire Idéal")
+            Text("Questionnaire Partenaire Idéal")
                 .font(.custom("Freeman-Regular", size: 24))
                 .foregroundColor(.white)
                 .padding()
 
-            QuestionPageView(questions: Array(idealPartnerQuestions[currentPage..<min(currentPage + 2, idealPartnerQuestions.count)]), answers: $answers)
-
-            Button(action: {
-                if currentPage + 2 < idealPartnerQuestions.count {
-                    currentPage += 2
-                } else {
-                    showSelfDescriptionPopup = true
-                }
-            }) {
-                Text(currentPage + 2 < idealPartnerQuestions.count ? "Suivant" : "Terminer")
+            if questions.isEmpty {
+                Text("Chargement des questions...")
                     .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.blue)
-                    .cornerRadius(10)
-                    .padding(.horizontal)
-            }
-
-            NavigationLink(destination: SelfDescriptionPopupView(), isActive: $showSelfDescriptionPopup) {
-                EmptyView()
+            } else {
+                QuestionPageView(questions: Array(questions[currentPage..<min(currentPage + 2, questions.count)]), answers: $answers)
+                
+                Button(action: {
+                    if currentPage + 2 < questions.count {
+                        currentPage += 1
+                    } else {
+                        saveAnswers()
+                    }
+                }) {
+                    Text(currentPage + 2 < questions.count ? "Suivant" : "Terminer")
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.blue)
+                        .cornerRadius(10)
+                        .padding(.horizontal)
+                }
             }
         }
-        .background(
-            ZStack {
-                Color.black.edgesIgnoringSafeArea(.all)
-                HeartAnimationView()
-            }
-        )
+        .background(Color.black.edgesIgnoringSafeArea(.all))
         .navigationBarBackButtonHidden(true)
+        .onAppear(perform: loadQuestions)
     }
-}
 
-struct IdealPartnerQuestionnaireView_Previews: PreviewProvider {
-    static var previews: some View {
-        IdealPartnerQuestionnaireView()
+    private func loadQuestions() {
+        questions = idealPartnerQuestions
+    }
+
+    private func saveAnswers() {
+        guard let user = user else { return }
+        let db = Firestore.firestore()
+        db.collection("users").document(user.id).setData([
+            "idealPartnerQuestionnaireAnswers": answers
+        ], merge: true) { error in
+            if let error = error {
+                print("Erreur lors de la sauvegarde des réponses du questionnaire: \(error.localizedDescription)")
+            }
+        }
     }
 }

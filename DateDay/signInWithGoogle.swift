@@ -43,7 +43,7 @@ class SignInWithGoogle {
                     return
                 }
 
-                let user = User(id: UUID(), name: user.profile?.name ?? "", gender: .male, sexualOrientation: .heterosexual, answers: [:])
+                let user = User(id: authResult.user.uid, name: user.profile?.name ?? "", gender: .male, sexualOrientation: .heterosexual, answers: [:])
                 completion(.success(user))
             }
         }

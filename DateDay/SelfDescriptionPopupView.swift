@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SelfDescriptionPopupView: View {
     @State private var navigateToSelfDescriptionQuestionnaire = false
+    @Binding var user: User?
 
     var body: some View {
         VStack {
@@ -22,7 +23,7 @@ struct SelfDescriptionPopupView: View {
 
             Spacer()
 
-            NavigationLink(destination: SelfDescriptionQuestionnaireView(), isActive: $navigateToSelfDescriptionQuestionnaire) {
+            NavigationLink(destination: SelfDescriptionQuestionnaireView(user: $user), isActive: $navigateToSelfDescriptionQuestionnaire) {
                 Text("Suivant")
                     .foregroundColor(.white)
                     .padding()
@@ -50,6 +51,6 @@ struct SelfDescriptionPopupView: View {
 
 struct SelfDescriptionPopupView_Previews: PreviewProvider {
     static var previews: some View {
-        SelfDescriptionPopupView()
+        SelfDescriptionPopupView(user: .constant(nil))
     }
 }

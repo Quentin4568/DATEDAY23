@@ -190,7 +190,7 @@ struct EmailPasswordView: View {
                 if Auth.auth().currentUser?.isEmailVerified == true {
                     timer.invalidate()
                     // Naviguer vers la vue BirthDateView
-                    self.user = User(id: UUID(), name: email, gender: .male, sexualOrientation: .heterosexual, answers: [:])
+                    self.user = User(id: UUID().uuidString, name: email, gender: .male, sexualOrientation: .heterosexual, answers: [:])
                     self.navigateToBirthDateView = true
                 }
             }
@@ -230,7 +230,7 @@ struct EmailPasswordView: View {
                     return
                 }
 
-                self.user = User(id: UUID(), name: user.profile?.name ?? "", gender: .male, sexualOrientation: .heterosexual, answers: [:])
+                self.user = User(id: authResult.user.uid, name: user.profile?.name ?? "", gender: .male, sexualOrientation: .heterosexual, answers: [:])
                 self.navigateToBirthDateView = true
             }
         }
@@ -266,7 +266,7 @@ struct EmailPasswordView: View {
                     return
                 }
 
-                self.user = User(id: UUID(), name: appleIDCredential.fullName?.givenName ?? "Utilisateur Apple", gender: .male, sexualOrientation: .heterosexual, answers: [:])
+                self.user = User(id: authResult.user.uid, name: appleIDCredential.fullName?.givenName ?? "Utilisateur Apple", gender: .male, sexualOrientation: .heterosexual, answers: [:])
                 self.navigateToBirthDateView = true
             }
         default:

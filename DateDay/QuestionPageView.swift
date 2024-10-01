@@ -8,58 +8,41 @@
 import SwiftUI
 
 struct QuestionPageView: View {
-    let questions: [Question]
-    @Binding var answers: [UUID: String]
+    var questions: [Question]
+    @Binding var answers: [String: String]
 
     var body: some View {
-        VStack(spacing: 20) { // Espacement entre les questions
-            ForEach(questions.prefix(2)) { question in // Limiter à 2 questions par page
-                VStack(alignment: .leading, spacing: 10) { // Espacement entre la question et les réponses
+        VStack(spacing: 20) {
+            ForEach(questions, id: \.id) { question in
+                VStack(alignment: .leading, spacing: 10) {
                     Text(question.text)
-                        .font(.custom("Freeman-Regular", size: 16)) // Taille ajustée pour les questions
+                        .font(.title3)
                         .foregroundColor(.white)
-                        .padding(.bottom, 10)
-                    
-                    VStack(alignment: .leading, spacing: 5) { // Alignement et espacement des options
-                        ForEach(question.options, id: \.self) { option in
-                            Button(action: {
-                                answers[question.id] = option
-                            }) {
-                                HStack {
-                                    Text(option)
-                                        .font(.custom("Freeman-Regular", size: 14)) // Taille ajustée pour les réponses
-                                        .foregroundColor(answers[question.id] == option ? .white : .black)
-                                    Spacer()
-                                    if answers[question.id] == option {
-                                        Image(systemName: "checkmark")
-                                            .foregroundColor(.white)
-                                    }
-                                }
-                                .padding(8)
-                                .background(answers[question.id] == option ? Color.blue : Color.white)
-                                .cornerRadius(8)
+
+                    ForEach(question.options, id: \.self) { option in
+                        Button(action: {
+                            // Mise à jour de la réponse sélectionnée pour la question
+                            if let questionId = question.id {
+                                answers[questionId] = option
+                            }
+                        }) {
+                            HStack {
+                                Text(option)
+                                    .font(.headline)
+                                    .foregroundColor(answers[question.id ?? ""] == option ? .white : .black)
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(answers[question.id ?? ""] == option ? Color.blue : Color.gray.opacity(0.3))
+                                    .cornerRadius(10)
                             }
                         }
                     }
                 }
-                .padding()
-                .background(Color.white.opacity(0.2))
-                .cornerRadius(10)
                 .padding(.horizontal)
             }
         }
-        .padding(.top, 20) // Ajouter un espacement en haut
-        .background(
-            ZStack {
-                Color.black.edgesIgnoringSafeArea(.all)
-                HeartAnimationView()
-            }
-        )
-    }
-}
-
-struct QuestionPageView_Previews: PreviewProvider {
-    static var previews: some View {
-        QuestionPageView(questions: sampleQuestions, answers: .constant([:]))
+        .padding()
+        .background(Color.black.opacity(0.7))
+        .cornerRadius(10)
     }
 }

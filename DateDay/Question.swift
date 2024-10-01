@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import Firebase
 
-struct Question: Identifiable {
-    let id = UUID()
-    let text: String
-    let options: [String]
+struct Question: Identifiable, Codable {
+    @DocumentID var id: String?
+    var text: String
+    var options: [String]
 }
 
 let sampleQuestions: [Question] = [

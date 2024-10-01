@@ -20,7 +20,7 @@ struct CompletionView: View {
                 .foregroundColor(.white)
                 .fontWeight(.bold)
                 .padding()
-            
+
             Text("Vous avez terminé la première étape de votre inscription ! Désormais, tu vas devoir répondre à une série de questions nous permettant de te mettre en relation avec les personnes les plus compatibles avec toi ! Ne t'en fais pas, ce n'est pas très long et ce sont tes réponses qui vont nous permettre de vraiment cibler ton prochain Date ! 😍")
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white)
@@ -28,7 +28,7 @@ struct CompletionView: View {
 
             Spacer()
 
-            NavigationLink(destination: GeneralQuestionnaireView()) {
+            NavigationLink(destination: GeneralQuestionnaireView(user: $user, isSignedIn: $isSignedIn)) {
                 Text("Commencer")
                     .foregroundColor(.white)
                     .padding()

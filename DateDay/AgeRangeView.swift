@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Firebase
 
 struct AgeRangeView: View {
     @Binding var isSignedIn: Bool
@@ -68,6 +69,9 @@ struct AgeRangeView: View {
                     .padding(.horizontal)
                     .padding(.top)
             }
+            .simultaneousGesture(TapGesture().onEnded {
+                saveAgeRange()
+            })
 
             Spacer()
         }
@@ -79,5 +83,25 @@ struct AgeRangeView: View {
         )
         .navigationBarBackButtonHidden(true)
     }
+
+    private func saveAgeRange() {
+        guard let user = user else { return }
+        let db = Firestore.firestore()
+        db.collection("users").document(user.id).setData([
+            "ageRange": [
+                "minAge": minAge,
+                "maxAge": maxAge
+            ]
+        ], merge: true) { error in
+            if let error = error {
+                print("Erreur lors de la sauvegarde de la tranche d'âge: \(error.localizedDescription)")
+            }
+        }
+    }
 }
 
+struct AgeRangeView_Previews: PreviewProvider {
+    static var previews: some View {
+        AgeRangeView(isSignedIn: .constant(false), user: .constant(nil))
+    }
+}

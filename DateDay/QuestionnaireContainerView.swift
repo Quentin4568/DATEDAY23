@@ -6,12 +6,16 @@
 //
 
 import SwiftUI
+import Firebase
 
 struct QuestionnaireContainerView: View {
     @State private var currentQuestionnaire = 1
-    @State private var answers: [UUID: String] = [:]
+    @State private var answers: [String: String] = [:]
     @State private var currentPage = 0
     @State private var showThankYouPopup = false
+
+    @Environment(\.presentationMode) var presentationMode
+    @Binding var user: User?
 
     var body: some View {
         VStack {
@@ -24,6 +28,14 @@ struct QuestionnaireContainerView: View {
                             currentQuestionnaire -= 1
                             currentPage = 0
                         }
+                    }) {
+                        Text("Retour")
+                            .foregroundColor(.white)
+                            .padding()
+                    }
+                } else {
+                    Button(action: {
+                        self.presentationMode.wrappedValue.dismiss()
                     }) {
                         Text("Retour")
                             .foregroundColor(.white)
@@ -63,6 +75,7 @@ struct QuestionnaireContainerView: View {
                         if currentPage + 2 < sampleQuestions.count {
                             currentPage += 2
                         } else {
+                            saveAnswers(for: "generalQuestionnaireAnswers")
                             currentQuestionnaire = 2
                             currentPage = 0
                         }
@@ -103,6 +116,7 @@ struct QuestionnaireContainerView: View {
                         if currentPage + 2 < idealPartnerQuestions.count {
                             currentPage += 2
                         } else {
+                            saveAnswers(for: "idealPartnerQuestionnaireAnswers")
                             currentQuestionnaire = 3
                             currentPage = 0
                         }
@@ -143,6 +157,7 @@ struct QuestionnaireContainerView: View {
                         if currentPage + 2 < selfDescriptionQuestions.count {
                             currentPage += 2
                         } else {
+                            saveAnswers(for: "selfDescriptionQuestionnaireAnswers")
                             showThankYouPopup = true
                         }
                     }) {
@@ -168,10 +183,22 @@ struct QuestionnaireContainerView: View {
         )
         .navigationBarBackButtonHidden(true)
     }
+
+    private func saveAnswers(for questionnaire: String) {
+        guard let user = user else { return }
+        let db = Firestore.firestore()
+        db.collection("users").document(user.id).setData([
+            questionnaire: answers
+        ], merge: true) { error in
+            if let error = error {
+                print("Erreur lors de la sauvegarde des réponses du questionnaire: \(error.localizedDescription)")
+            }
+        }
+    }
 }
 
 struct QuestionnaireContainerView_Previews: PreviewProvider {
     static var previews: some View {
-        QuestionnaireContainerView()
+        QuestionnaireContainerView(user: .constant(nil))
     }
 }

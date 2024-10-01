@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Firebase
 
 struct GenderView: View {
     @Binding var isSignedIn: Bool
@@ -62,6 +63,9 @@ struct GenderView: View {
                     .padding(.horizontal)
                     .padding(.top)
             }
+            .simultaneousGesture(TapGesture().onEnded {
+                saveGender()
+            })
 
             Spacer()
         }
@@ -72,6 +76,18 @@ struct GenderView: View {
             }
         )
         .navigationBarBackButtonHidden(true)
+    }
+
+    private func saveGender() {
+        guard let user = user else { return }
+        let db = Firestore.firestore()
+        db.collection("users").document(user.id).setData([
+            "gender": selectedGender.rawValue
+        ], merge: true) { error in
+            if let error = error {
+                print("Erreur lors de la sauvegarde du genre: \(error.localizedDescription)")
+            }
+        }
     }
 }
 

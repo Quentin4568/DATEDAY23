@@ -7,6 +7,8 @@
 
 import SwiftUI
 import CoreLocation
+import Firebase
+import FirebaseFirestore
 
 struct LocationView: View {
     @Binding var isSignedIn: Bool
@@ -18,6 +20,7 @@ struct LocationView: View {
     @State private var showingLocationRequest = false
     @State private var locationStatus = CLAuthorizationStatus.notDetermined
     @State private var maxDistance: Double = 50.0
+    @State private var navigateToPhotoUpload = false
 
     @Environment(\.presentationMode) var presentationMode
 
@@ -68,7 +71,7 @@ struct LocationView: View {
                 }
                 .padding()
 
-                NavigationLink(destination: AgeRangeView(isSignedIn: $isSignedIn, user: $user)) {
+                NavigationLink(destination: PhotoUploadView(isSignedIn: $isSignedIn, user: $user), isActive: $navigateToPhotoUpload) {
                     Text("Suivant")
                         .foregroundColor(.white)
                         .padding()
@@ -78,6 +81,9 @@ struct LocationView: View {
                         .padding(.horizontal)
                         .padding(.top)
                 }
+                .simultaneousGesture(TapGesture().onEnded {
+                    saveLocationData()
+                })
             }
         }
         .background(
@@ -109,9 +115,23 @@ struct LocationView: View {
         }
     }
 
-    private func finishSignup() {
-        print("Inscription terminée avec succès !")
-        // Logique pour terminer l'inscription et naviguer vers la vue principale
+    private func saveLocationData() {
+        guard let user = user else { return }
+        let db = Firestore.firestore()
+        db.collection("users").document(user.id).setData([
+            "maxDistance": maxDistance
+        ], merge: true) { error in
+            if let error = error {
+                print("Erreur lors de la sauvegarde des données de localisation : \(error.localizedDescription)")
+            } else {
+                navigateToPhotoUpload = true
+            }
+        }
     }
 }
 
+struct LocationView_Previews: PreviewProvider {
+    static var previews: some View {
+        LocationView(isSignedIn: .constant(false), user: .constant(nil), firstName: .constant("John"), birthDate: .constant(Date()), selectedGender: .constant(.male), selectedOrientation: .constant(.heterosexual))
+    }
+}

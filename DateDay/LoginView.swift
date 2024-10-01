@@ -67,7 +67,7 @@ struct LoginView: View {
                 print("Erreur inconnue")
                 return
             }
-            self.user = User(id: UUID(), name: authResult.user.displayName ?? "", gender: .male, sexualOrientation: .heterosexual, answers: [:])
+            self.user = User(id: authResult.user.uid, name: authResult.user.displayName ?? "", gender: .male, sexualOrientation: .heterosexual, answers: [:])
             self.isSignedIn = true
         }
     }

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Firebase
 
 struct BirthDateView: View {
     @Binding var isSignedIn: Bool
@@ -57,6 +58,9 @@ struct BirthDateView: View {
                     .padding(.horizontal)
                     .padding(.top)
             }
+            .simultaneousGesture(TapGesture().onEnded {
+                saveBirthDate()
+            })
 
             Spacer()
         }
@@ -68,6 +72,18 @@ struct BirthDateView: View {
         )
         .navigationBarBackButtonHidden(true)
     }
+
+    private func saveBirthDate() {
+        guard let user = user else { return }
+        let db = Firestore.firestore()
+        db.collection("users").document(user.id).setData([
+            "birthDate": Timestamp(date: birthDate)
+        ], merge: true) { error in
+            if let error = error {
+                print("Erreur lors de la sauvegarde de la date de naissance: \(error.localizedDescription)")
+            }
+        }
+    }
 }
 
 struct BirthDateView_Previews: PreviewProvider {
@@ -75,4 +91,3 @@ struct BirthDateView_Previews: PreviewProvider {
         BirthDateView(isSignedIn: .constant(false), user: .constant(nil))
     }
 }
-

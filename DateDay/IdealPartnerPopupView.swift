@@ -8,49 +8,44 @@
 import SwiftUI
 
 struct IdealPartnerPopupView: View {
-    @State private var navigateToIdealPartnerQuestionnaire = false
+    @Binding var showPopup: Bool
+    @Binding var user: User?
 
     var body: some View {
         VStack {
-            Spacer()
-
-            Text("Maintenant, dis-nous comment serait ton partenaire idéal ?😏")
+            Text("Décris-nous ton partenaire idéal 😍")
                 .font(.custom("Freeman-Regular", size: 24))
                 .foregroundColor(.white)
-                .multilineTextAlignment(.center)
                 .padding()
 
-            Spacer()
-
-            NavigationLink(destination: IdealPartnerQuestionnaireView(), isActive: $navigateToIdealPartnerQuestionnaire) {
-                Text("Suivant")
+            Button(action: {
+                showPopup = false
+            }) {
+                Text("Commencer")
                     .foregroundColor(.white)
                     .padding()
                     .frame(maxWidth: .infinity)
                     .background(Color.blue)
                     .cornerRadius(10)
                     .padding(.horizontal)
-                    .padding(.top)
-                    .onTapGesture {
-                        navigateToIdealPartnerQuestionnaire = true
-                    }
             }
-
-            Spacer()
         }
-        .background(
-            ZStack {
-                Color.black.edgesIgnoringSafeArea(.all)
-                HeartAnimationView()
+        .background(Color.black.edgesIgnoringSafeArea(.all).opacity(0.8))
+        .cornerRadius(10)
+        .shadow(radius: 10)
+        .padding()
+        .onDisappear {
+            if !showPopup {
+                if let rootView = UIApplication.shared.windows.first?.rootViewController {
+                    rootView.present(UIHostingController(rootView: IdealPartnerQuestionnaireView(user: $user)), animated: true, completion: nil)
+                }
             }
-        )
-        .navigationBarBackButtonHidden(true)
+        }
     }
 }
 
 struct IdealPartnerPopupView_Previews: PreviewProvider {
     static var previews: some View {
-        IdealPartnerPopupView()
+        IdealPartnerPopupView(showPopup: .constant(true), user: .constant(nil))
     }
 }
-
